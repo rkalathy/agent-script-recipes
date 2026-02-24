@@ -9,24 +9,23 @@ This recipe demonstrates how to use variables to manage state in your agent. Var
 ```mermaid
 %%{init: {'theme':'neutral'}}%%
 graph TD
-    A[Start Survey] --> B[start_agent survey]
-    B --> C[Execute Procedural Instructions]
-    C --> D{Check: user_name set?}
-    D -->|No| E[Ask for Name]
-    E --> F[run set_user_name via @utils.setVariables]
-    D -->|Yes| G{Check: age > 0?}
-    F --> G
-    G -->|No| H[Ask for Age]
-    H --> I[run set_age via @utils.setVariables]
-    G -->|Yes| J{Check: interests set?}
-    I --> J
-    J -->|No| K[Ask for Interests]
-    K --> L[run set_interests via @utils.setVariables]
-    J -->|Yes| M[All Data Collected]
-    L --> M
-    M --> N[survey_completed = True]
+    A[Start] --> B[start_agent topic_selector]
+    B --> C[Transition to collect_information]
+    C --> D[Build Dynamic Instructions]
+    D --> E{Check: user_name set?}
+    E -->|No| F[Ask for Name]
+    F --> G[LLM calls set_user_name]
+    E -->|Yes| H{Check: age > 0?}
+    G --> H
+    H -->|No| I[Ask for Age]
+    I --> J[LLM calls set_age]
+    H -->|Yes| K{Check: interests set?}
+    J --> K
+    K -->|No| L[Ask for Interests]
+    L --> M[LLM calls set_interests<br/>+ survey_completed = True]
+    K -->|Yes| N[All Data Collected]
+    M --> N
     N --> O[Display Summary]
-    O --> P[End]
 ```
 
 ## Key Concepts
@@ -163,26 +162,24 @@ variables:
 
 ```agentscript
 reasoning:
-   instructions:->
+   instructions: ->
       |
         Collect information from the user step by step.
 
         Current survey progress:
+
       if @variables.user_name:
          | - Name: {!@variables.user_name}
-            run @actions.set_user_name
       else:
          | - Name: Not provided
 
       if @variables.age > 0:
          | - Age: {!@variables.age}
-            run @actions.set_age
       else:
          | - Age: Not provided
 
       if @variables.interests:
          | - Interests: {!@variables.interests}
-            run @actions.set_interests
       else:
          | - Interests: Not provided
 
@@ -192,10 +189,12 @@ reasoning:
         1. Be natural and conversational. Don't ask all questions at once.
         2. If user_name is empty, ask for their name
         3. If age is 0, ask for their age
-        4. If interests is empty, ask about their hobbies and interests
+        4. If interests list is empty, ask about their hobbies and interests
         5. Once all information is collected respond to the user with a "Thank you". Also summarize the collected
            data for them.
 ```
+
+The instructions block uses `if/else` to build a dynamic progress display. The LLM sees this context each turn and decides which `@utils.setVariables` action to invoke from `reasoning.actions`.
 
 ### Conditional Logic Based on Variables
 
@@ -208,16 +207,25 @@ else:
 
 The `if/else` blocks control which template content is included based on variable values.
 
-### start_agent Entry Point
+### Topic Selector and Survey Topic
 
 ```agentscript
-start_agent survey:
-   description: "Collects user's Name, Age and Interests and save it in variables. Do not ask any other questions for the survey except for Name, Age and Interests"
+start_agent topic_selector:
+      description: "Welcome users"
 
-   reasoning:
-      instructions:->
-         # ... procedural instructions shown above ...
+      reasoning:
+         instructions:|
+               Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+         actions:
+            go_to_collect_information: @utils.transition to @topic.collect_information
+               description: "Collects user's Name, Age and Interests from the user for the survey."
+```
 
+The `start_agent` routes users to the `collect_information` topic via `@utils.transition to`.
+
+### Setting Variables with `@utils.setVariables`
+
+```agentscript
       actions:
          set_user_name: @utils.setVariables
             with user_name=...
@@ -228,7 +236,7 @@ start_agent survey:
             with survey_completed = True
 ```
 
-This agent uses `start_agent survey:` to go directly into the survey flow without a separate topic. The `@utils.setVariables` utility is used to store collected data into the agent's variables, and the `set_interests` action also sets `survey_completed = True` to mark the survey as done.
+These `reasoning.actions` let the LLM slot-fill values from the conversation using `...`. The `set_interests` action also sets `survey_completed = True` to mark the survey as done.
 
 ## Try It Out
 

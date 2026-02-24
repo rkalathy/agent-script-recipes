@@ -32,30 +32,38 @@ system:
    instructions: "You are a friendly survey agent, that collects users name, age and interests. Be conversational and encouraging. Make the survey feel like a chat, not an interrogation."
 
 
-start_agent survey:
-   description: "Collects user's Name, Age and Interests and save it in variables. Do not ask any other questions for the survey except for Name, Age and Interests"
+start_agent topic_selector:
+      description: "Welcome users"
+         
+      reasoning:
+         instructions:|
+               Select the tool that best matches the user's message and conversation history. If it's unclear, make your best guess.
+         actions:
+            go_to_collect_information: @utils.transition to @topic.collect_information
+               description: "Collects user's Name, Age and Interests from the user for the survey."
+      
+topic collect_information:
+   description: "Collects user's Name, Age and Interests and save it in variables."
 
    reasoning:
-      instructions:->
+      instructions: ->
          |
            Collect information from the user step by step.
   
            Current survey progress:
+
          if @variables.user_name:
             | - Name: {!@variables.user_name}
-               run @actions.set_user_name
          else:
             | - Name: Not provided
          
          if @variables.age > 0:
             | - Age: {!@variables.age}
-               run @actions.set_age
          else:
             | - Age: Not provided
          
          if @variables.interests:
             | - Interests: {!@variables.interests}
-               run @actions.set_interests
          else:
             | - Interests: Not provided
          
@@ -68,7 +76,6 @@ start_agent survey:
            4. If interests list is empty, ask about their hobbies and interests
            5. Once all information is collected respond to the user with a "Thank you". Also summarize the collected
               data for them.
-
       actions: 
          set_user_name: @utils.setVariables
             with user_name=...
