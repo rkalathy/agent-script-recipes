@@ -794,7 +794,44 @@ Before finalizing an Agent Script, verify:
     | If continuing a conversation, route to {!@actions.begin_data_management}.
     ```
 
-9. **Using `@inputs` in `set` directives (causes unknown deploy error):**
+9. **Using `run @actions.X` where X is only a reasoning-level utility (not a topic-level action):**
+
+    The `run @actions.X` directive in `instructions` procedures resolves against the **topic-level `actions`** block (those with a `target:`). It cannot invoke actions defined only in `reasoning.actions` (such as `@utils.setVariables`). If the topic has no top-level `actions` block, you'll get: _"Action '@actions.X' not found … No actions defined in this topic."_
+
+    ```agentscript
+    # WRONG - set_user_name is a @utils.setVariables utility, not a topic-level action
+    reasoning:
+       instructions:->
+          run @actions.set_user_name
+          | Collect the user's name.
+       actions:
+          set_user_name: @utils.setVariables
+             with user_name=...
+
+    # CORRECT - remove the run; the LLM will invoke set_user_name during reasoning
+    reasoning:
+       instructions:->
+          | Collect the user's name.
+       actions:
+          set_user_name: @utils.setVariables
+             with user_name=...
+
+    # ALSO VALID - run works when the action is defined at the topic level with a target
+    actions:
+       fetch_customer:
+          inputs:
+             id: string
+          outputs:
+             name: string
+          target: "flow://FetchCustomer"
+    reasoning:
+       instructions:->
+          run @actions.fetch_customer
+             with id=@variables.customer_id
+             set @variables.customer_name = @outputs.name
+    ```
+
+10. **Using `@inputs` in `set` directives (causes unknown deploy error):**
 
     ```agentscript
     # WRONG - @inputs in set causes unknown error at deploy time
