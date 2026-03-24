@@ -25,28 +25,18 @@ export default class CaseInputEditor extends LightningElement {
 
     subject;
     priority;
-    category;
     description;
 
     priorityOptions = [
         { label: 'Low', value: 'Low' },
         { label: 'Medium', value: 'Medium' },
-        { label: 'High', value: 'High' },
-        { label: 'Critical', value: 'Critical' }
-    ];
-
-    categoryOptions = [
-        { label: 'Technical', value: 'Technical' },
-        { label: 'Billing', value: 'Billing' },
-        { label: 'General', value: 'General' },
-        { label: 'Feature Request', value: 'Feature Request' }
+        { label: 'High', value: 'High' }
     ];
 
     connectedCallback() {
         if (this.value) {
             this.subject = this.value?.subject || '';
             this.priority = this.value?.priority || '';
-            this.category = this.value?.category || '';
             this.description = this.value?.description || '';
         }
     }
@@ -62,7 +52,6 @@ export default class CaseInputEditor extends LightningElement {
                     value: {
                         subject: this.subject,
                         priority: this.priority,
-                        category: this.category,
                         description: this.description
                     }
                 }

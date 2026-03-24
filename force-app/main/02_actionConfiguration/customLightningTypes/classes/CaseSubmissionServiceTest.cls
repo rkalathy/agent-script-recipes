@@ -10,7 +10,6 @@ private class CaseSubmissionServiceTest {
         CaseSubmissionService.CaseInput input = new CaseSubmissionService.CaseInput();
         input.subject = 'Login page not loading';
         input.priority = 'High';
-        input.category = 'Technical';
         input.description = 'The login page returns a 500 error when accessed.';
 
         CaseSubmissionService.SubmitCaseRequest request = new CaseSubmissionService.SubmitCaseRequest();
@@ -54,11 +53,6 @@ private class CaseSubmissionServiceTest {
             'Priority should match input'
         );
         Assert.areEqual(
-            'Technical',
-            response.case_result.category,
-            'Category should match input'
-        );
-        Assert.areEqual(
             'The login page returns a 500 error when accessed.',
             response.case_result.description,
             'Description should match input'
@@ -86,8 +80,7 @@ private class CaseSubmissionServiceTest {
 
         CaseSubmissionService.CaseInput input1 = new CaseSubmissionService.CaseInput();
         input1.subject = 'Billing discrepancy';
-        input1.priority = 'Critical';
-        input1.category = 'Billing';
+        input1.priority = 'High';
         input1.description = 'Charged twice for the same subscription.';
         CaseSubmissionService.SubmitCaseRequest request1 = new CaseSubmissionService.SubmitCaseRequest();
         request1.case_data = input1;
@@ -96,7 +89,6 @@ private class CaseSubmissionServiceTest {
         CaseSubmissionService.CaseInput input2 = new CaseSubmissionService.CaseInput();
         input2.subject = 'Feature request: dark mode';
         input2.priority = 'Low';
-        input2.category = 'Feature Request';
         input2.description = 'Would like a dark mode option in the UI.';
         CaseSubmissionService.SubmitCaseRequest request2 = new CaseSubmissionService.SubmitCaseRequest();
         request2.case_data = input2;
@@ -112,9 +104,9 @@ private class CaseSubmissionServiceTest {
         // Verify all requests were processed
         Assert.areEqual(2, responses.size(), 'Should return two responses');
         Assert.areEqual(
-            'Within 1 hour',
+            'Within 4 hours',
             responses[0].case_result.estimatedResponse,
-            'Critical priority should have 1-hour response time'
+            'High priority should have 4-hour response time'
         );
         Assert.areEqual(
             'Within 48 hours',
@@ -148,11 +140,6 @@ private class CaseSubmissionServiceTest {
             'Medium',
             response.case_result.priority,
             'Priority should default to Medium'
-        );
-        Assert.areEqual(
-            'General',
-            response.case_result.category,
-            'Category should default to General'
         );
         Assert.areEqual(
             'Within 24 hours',

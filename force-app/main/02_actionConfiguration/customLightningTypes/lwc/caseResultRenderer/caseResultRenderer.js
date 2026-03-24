@@ -6,7 +6,6 @@ export default class CaseResultRenderer extends LightningElement {
     caseNumber;
     subject;
     priority;
-    category;
     description;
     status;
     createdDate;
@@ -17,7 +16,6 @@ export default class CaseResultRenderer extends LightningElement {
             this.caseNumber = this.value.caseNumber || '';
             this.subject = this.value.subject || '';
             this.priority = this.value.priority || '';
-            this.category = this.value.category || '';
             this.description = this.value.description || '';
             this.status = this.value.status || '';
             this.createdDate = this.value.createdDate || '';
@@ -27,8 +25,6 @@ export default class CaseResultRenderer extends LightningElement {
 
     get priorityClass() {
         switch (this.priority) {
-            case 'Critical':
-                return 'slds-theme_error';
             case 'High':
                 return 'slds-theme_warning';
             case 'Medium':

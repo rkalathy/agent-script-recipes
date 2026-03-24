@@ -18,9 +18,6 @@ public with sharing class CaseSubmissionService {
         @InvocableVariable(label='Priority' description='Case priority')
         public String priority;
 
-        @InvocableVariable(label='Category' description='Case category')
-        public String category;
-
         @InvocableVariable(label='Description' description='Case description')
         public String description;
     }
@@ -37,9 +34,6 @@ public with sharing class CaseSubmissionService {
 
         @InvocableVariable(label='Priority')
         public String priority;
-
-        @InvocableVariable(label='Category')
-        public String category;
 
         @InvocableVariable(label='Description')
         public String description;
@@ -101,9 +95,6 @@ public with sharing class CaseSubmissionService {
             result.priority = String.isNotBlank(input.priority)
                 ? input.priority
                 : 'Medium';
-            result.category = String.isNotBlank(input.category)
-                ? input.category
-                : 'General';
             result.description = input.description;
             result.status = 'New';
             result.createdDate = Datetime.now().format('MMMM d, yyyy');
@@ -126,9 +117,6 @@ public with sharing class CaseSubmissionService {
      */
     private static String getEstimatedResponse(String priority) {
         switch on priority {
-            when 'Critical' {
-                return 'Within 1 hour';
-            }
             when 'High' {
                 return 'Within 4 hours';
             }
